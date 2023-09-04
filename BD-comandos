@@ -1,0 +1,150 @@
+CREATE database fastbank;
+DROP database fastbank;
+use fastbank;
+
+CREATE TABLE cliente (
+	codigo INT auto_increment PRIMARY KEY,
+	codigoEndereco INT,
+	nome_razaosocial varchar(100) not null,
+	nomesocial_fantasia varchar(100) null,
+	foto_logo varchar(100) null,
+	datanascimento_abertura date null,
+	usuario char(10) not null,
+	senha int not null,
+	FOREIGN KEY (codigoEndereco) REFERENCES endereco(codigo)
+);
+
+CREATE TABLE endereco (
+	codigo INT auto_increment PRIMARY KEY,
+	logradouro varchar(100) not null,
+	bairro varchar(100) not null,
+	cidade varchar(50) not null,
+	uf char(2),
+	cep char (10)
+);
+
+CREATE TABLE contato (
+	codigo INT auto_increment PRIMARY KEY,
+	codigoCliente INT,
+	numero varchar(20),
+	ramal varchar(25),
+	email varchar(50),
+	observacao varchar(50),
+	FOREIGN KEY (codigoCliente) REFERENCES cliente(codigo)
+);
+
+CREATE TABLE conta (
+    codigo INT auto_increment PRIMARY KEY,
+    agencia varchar(10),
+    numero varchar(25),
+    tipo varchar(20),
+    limite decimal(15, 2),
+    ativa boolean
+);
+
+CREATE TABLE investimento (
+    codigo INT auto_increment PRIMARY KEY,
+    codigoConta INT,
+    tipo varchar(30),
+    aporte decimal(15, 2),
+    taxaAdministracao float,
+    prazo varchar(20),
+    grauRisco char(5),
+    rentabilidade decimal(15, 2),
+    finalizado bit,
+    FOREIGN KEY (codigoConta) REFERENCES conta(codigo)
+);
+
+CREATE TABLE cartao (
+    codigo INT auto_increment PRIMARY KEY,
+    codigoConta INT,
+    numero varchar(30),
+    cvv char(5),
+    validade date,
+    bandeira varchar(20),
+    situacao varchar(20),
+    FOREIGN KEY (codigoConta) REFERENCES conta(codigo)
+);
+
+CREATE TABLE movimentacao (
+    codigo INT auto_increment PRIMARY KEY,
+    codigoCartao int,
+    dataHora datetime,
+    operacao varchar(20),
+    valor decimal(15, 2),
+    FOREIGN KEY (codigoCartao) REFERENCES cartao(codigo)
+);
+
+CREATE TABLE emprestimo (
+    codigo INT auto_increment PRIMARY KEY,
+	codigoConta int,
+    dataSolicitacao date,
+    valorSolicitado decimal(15, 2),
+    juros float,
+    aprovado bit,
+    numeroParcela int,
+    dataAprovacao date,
+    observacao varchar(200),
+    FOREIGN KEY (codigoConta) REFERENCES conta(codigo)
+);
+
+CREATE TABLE emprestimoParcela (
+    codigo INT auto_increment PRIMARY KEY,
+    codigoEmprestimo int,
+    numero int,
+    dataVencimento date,
+    valorParcela decimal(15, 2),
+    dataPagamento date,
+    valorPago decimal(15, 2),
+    FOREIGN KEY (codigoEmprestimo) REFERENCES emprestimo(codigo)
+);
+
+CREATE TABLE clienteConta (
+    codigoCliente INT,
+    codigoConta INT,
+    PRIMARY KEY (codigoCliente, codigoConta),
+    FOREIGN KEY (codigoCliente) REFERENCES cliente(codigo),
+    FOREIGN KEY (codigoConta) REFERENCES conta(codigo)
+);
+
+
+CREATE TABLE ClientePJ (
+    codigoCliente INT,
+    cnpj varchar(25),
+    inscricaoEstadual varchar(30),
+    inscricaoMunicipal varchar(30),
+    PRIMARY KEY (codigoCliente),
+    FOREIGN KEY (codigoCliente) REFERENCES cliente(codigo)
+);
+
+CREATE TABLE ClientePF (
+	codigoCliente INT,
+    cpf varchar(15),
+    rg varchar(15),
+    PRIMARY KEY (codigoCliente),
+    FOREIGN KEY (codigoCliente) REFERENCES cliente(codigo)
+);
+
+/* definindo uma chave estrangeira (vc cria normalmente como se fosse 
+uma coluna normal depois executa esse codigo para tranformar em uma 
+chave estrangeira) */
+
+ALTER TABLE cliente
+add constraint fk_endereco_cliente
+foreign key (codigoEndereco) references endereco(codigo);
+
+desc cliente;
+
+alter table clientes modify column
+nome_razaosocial varchar(200) not null;
+
+alter table clientes rename column nome_razaosocial 
+to nome; -- erro
+
+alter table clientes 
+add column codigoEndereco int;
+
+alter table clientes 
+drop column codigoEndereco;
+
+alter table clientes rename to cliente;
